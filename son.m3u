@@ -5,7 +5,7 @@
 #EXTINF:-1 tvg-id="1393" tvg-logo="https://jiotv.catchup.cdn.jio.com/dare_images/images/SonyWAH.png" group-title="Entertainment",Sony Wah
 #KODIPROP:inputstream.adaptive.license_type=clearkey
 #KODIPROP:inputstream.adaptive.license_key=f87b89f3549e5bdb969cb35ea57827b7:022f3fcd6c3035ed2843b0b45bff4304
-#EXTHTTP:{"cookie":"__hdnea__=st=1773291jjjjjjjj658~exp=1773378058~acl=/*~hmac=8f2331fd8c8e649de74522ec883a2492dd6ce1b51716d95ca81115a1143aed65"}
+#EXTHTTP:{"cookie":"__hdnea__=st=1773291658~exp=1773378058~acl=/*~hmac=8f2331fd8c8e649de74522ec883a2492dd6ce1b51716d95ca81115a1143aed65"}
 https://jiotvmblive.cdn.jio.com/bpk-tv/SonyWAH_BTS/output/index.mpd?__hdnea__=st=1773291658~exp=1773378058~acl=/*~hmac=8f2331fd8c8e649de74522ec883a2492dd6ce1b51716d95ca81115a1143aed65&xxx=%7Ccookie=__hdnea__=st=1773291658~exp=1773378058~acl=/*~hmac=8f2331fd8c8e649de74522ec883a2492dd6ce1b51716d95ca81115a1143aed65
 
 #EXTINF:-1 tvg-id="291" tvg-logo="https://jiotv.catchup.cdn.jio.com/dare_images/images/Sony_HD.png" group-title="Entertainment",SET HD
