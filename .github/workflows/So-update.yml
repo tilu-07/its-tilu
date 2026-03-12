@@ -1,1 +1,64 @@
+name: Sync Sony M3U Token
 
+on:
+  schedule:
+    # Runs every 2 minutes (may be slightly delayed by GitHub)
+    - cron: '*/2 * * * *'
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  refresh-token:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Extract Fresh Token
+        id: fetch
+        run: |
+          # 1. Fetch data from the secret URL
+          # Use the secret variable to pull the remote M3U data
+          SOURCE_DATA=$(curl -sL "${{ secrets.SO_BABA_TILU }}")
+          
+          # 2. Extract the 'hdnea=exp=' token 
+          FRESH_TOKEN=$(echo "$SOURCE_DATA" | grep -o 'hdnea=exp=[^"'\''[:space:]&]*' | head -n 1)
+          
+          if [ -z "$FRESH_TOKEN" ]; then
+            echo "Error: Could not extract hdnea token from source."
+            exit 1
+          fi
+          
+          echo "TOKEN=$FRESH_TOKEN" >> $GITHUB_ENV
+
+      - name: Update Local M3U
+        run: |
+          # Ensure the file so.m3u exists
+          if [ ! -f "so.m3u" ]; then
+            echo "Error: so.m3u not found in repository."
+            exit 1
+          fi
+
+          # 3. Replace old token with the fresh one in so.m3u
+          sed -i "s|hdnea=exp=[^\"'[:space:]&]*|${{ env.TOKEN }}|g" so.m3u
+
+      - name: Push Changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          
+          git add so.m3u
+          
+          if git diff --staged --quiet; then
+            echo "Token is already up to date. Skipping commit."
+          else
+            git commit -m "Auto-update Sony token: $(date)"
+            git push
+          fi
