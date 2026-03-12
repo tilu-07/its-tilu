@@ -25,7 +25,6 @@ jobs:
         id: fetch
         run: |
           # 1. Fetch data from the secret URL
-          # Use the secret variable to pull the remote M3U data
           SOURCE_DATA=$(curl -sL "${{ secrets.SO_BABA_TILU }}")
           
           # 2. Extract the 'hdnea=exp=' token 
@@ -40,14 +39,23 @@ jobs:
 
       - name: Update Local M3U
         run: |
-          # Ensure the file so.m3u exists
           if [ ! -f "so.m3u" ]; then
             echo "Error: so.m3u not found in repository."
             exit 1
           fi
 
+          # Generate IST Timestamp
+          TIMESTAMP=$(TZ='Asia/Kolkata' date +"%Y-%m-%d %I:%M:%S %p IST")
+
           # 3. Replace old token with the fresh one in so.m3u
           sed -i "s|hdnea=exp=[^\"'[:space:]&]*|${{ env.TOKEN }}|g" so.m3u
+
+          # 4. Update or Add the timestamp at the top of the file
+          if grep -q "# Last Updated:" so.m3u; then
+            sed -i "s|# Last Updated:.*|# Last Updated: $TIMESTAMP|g" so.m3u
+          else
+            sed -i "1i # Last Updated: $TIMESTAMP" so.m3u
+          fi
 
       - name: Push Changes
         run: |
@@ -57,8 +65,10 @@ jobs:
           git add so.m3u
           
           if git diff --staged --quiet; then
-            echo "Token is already up to date. Skipping commit."
+            echo "Token and timestamp are already up to date. Skipping commit."
           else
-            git commit -m "Auto-update Sony token: $(date)"
+            # Use IST time for the commit message too
+            COMMIT_TIME=$(TZ='Asia/Kolkata' date +"%Y-%m-%d %I:%M %p")
+            git commit -m "Auto-update Sony token: $COMMIT_TIME IST"
             git push
           fi
