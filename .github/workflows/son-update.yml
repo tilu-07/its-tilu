@@ -1,0 +1,61 @@
+name: Sync Kids M3U Token
+
+on:
+  schedule:
+    # NOTE: GitHub may delay 2-minute crons to every 5-10 mins to save resources
+    - cron: '*/2 * * * *'
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  refresh-token:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Extract Fresh Token
+        id: fetch
+        env:
+          SOURCE_URL: ${{ secrets.SON_BABA_TILU }}
+        run: |
+          # Fetch the source data using the secret URL
+          SOURCE_DATA=$(curl -sL "$SOURCE_URL")
+          
+          # Extract the cookie value
+          FRESH_TOKEN=$(echo "$SOURCE_DATA" | grep -o '"cookie":"[^"]*' | sed 's/"cookie":"//')
+          
+          if [ -z "$FRESH_TOKEN" ]; then
+            echo "Error: Could not extract token."
+            exit 1
+          fi
+          
+          # Mask the token in logs for security
+          echo "::add-mask::$FRESH_TOKEN"
+          echo "TOKEN=$FRESH_TOKEN" >> $GITHUB_ENV
+
+      - name: Update Kids M3U
+        run: |
+          # Update the token in the m3u file
+          sed -i "s|__hdnea__=[^\"'[:space:]&]*|${{ env.TOKEN }}|g" son.m3u
+
+      - name: Push Changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          
+          git add son.m3u
+          
+          if git diff --staged --quiet; then
+            echo "Token is already up to date. Skipping commit."
+          else
+            git commit -m "Auto-update token: $(date)"
+            git push
+          fi
