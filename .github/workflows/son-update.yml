@@ -43,8 +43,19 @@ jobs:
 
       - name: Update son
         run: |
-          # Update the token in the m3u file
+          # Get current timestamp in a readable format
+          TIMESTAMP=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
+          
+          # 1. Update the token in the m3u file
           sed -i "s|__hdnea__=[^\"'[:space:]&]*|${{ env.TOKEN }}|g" son.m3u
+          
+          # 2. Add or Update the timestamp comment at the top of the file
+          if grep -q "# Last Updated:" son.m3u; then
+            sed -i "s|# Last Updated:.*|# Last Updated: $TIMESTAMP|g" son.m3u
+          else
+            # If no timestamp exists, prepend it to the first line
+            sed -i "1i # Last Updated: $TIMESTAMP" son.m3u
+          fi
 
       - name: Push Changes
         run: |
@@ -54,8 +65,8 @@ jobs:
           git add son.m3u
           
           if git diff --staged --quiet; then
-            echo "Token is already up to date. Skipping commit."
+            echo "Token and timestamp are already up to date. Skipping commit."
           else
-            git commit -m "Auto-update token: $(date)"
+            git commit -m "Auto-update token & timestamp: $(date)"
             git push
           fi
