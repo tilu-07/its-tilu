@@ -1,4 +1,4 @@
-name: Sync Kids M3U Token
+name: baba-tilu-son
 
 on:
   schedule:
@@ -41,7 +41,7 @@ jobs:
           echo "::add-mask::$FRESH_TOKEN"
           echo "TOKEN=$FRESH_TOKEN" >> $GITHUB_ENV
 
-      - name: Update Kids M3U
+      - name: Update son
         run: |
           # Update the token in the m3u file
           sed -i "s|__hdnea__=[^\"'[:space:]&]*|${{ env.TOKEN }}|g" son.m3u
