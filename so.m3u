@@ -2,7 +2,7 @@
 #EXTM3U x-tvg-url="https://www.tsepg.cf/epg.xml.gz"
 # baba-tilu
 #EXTINF:-1 tvg-id="sony-hd" tvg-logo="https://sonypicturesnetworks.com/images/logos/SET-LOGO-HD.png" group-title="Entertainment",SET HD
-https://dishmt.slivcdn.com/hls/live/2011671/SETHD/master.m3u8?hdnea=exp=1773439718~acl=/*~id=20757005363966983684825937471337~hmac=41198f593e4e69672a6f4cbe76bfe92ec8a692f4acd8fbd46d190a7c38d4225c
+https://dishmt.slivcdn.com/hls/live/2011671/SETHD/master.m3u8?hdnea=exp=1773439718~acl=/*~id=20757005363966983684825937471337~hmac=41198f593e4e69672a6f4cbe76bfe92ec8a692f4acd8fbd46d19hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh0a7c38d4225c
 #EXTINF:-1 tvg-id="sony-sab-hd" tvg-logo="https://sonypicturesnetworks.com/images/logos/SONY%20SAB%20HD_WHITE.png" group-title="Entertainment",Sony SAB HD
 https://dishmt.slivcdn.com/hls/live/2011749/SABHD/master.m3u8?hdnea=exp=1773439718~acl=/*~id=20757005363966983684825937471337~hmac=41198f593e4e69672a6f4cbe76bfe92ec8a692f4acd8fbd46d190a7c38d4225c
 #EXTINF:-1 tvg-id="sony-marathi" tvg-logo="https://sonypicturesnetworks.com/images/logos/Sony_MARATHI.png" group-title="Entertainment",Sony Marathii
