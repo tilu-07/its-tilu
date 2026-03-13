@@ -49,11 +49,11 @@ jobs:
           sed -i "s|__hdnea__=[^\"'[:space:]&]*|${{ env.TOKEN }}|g" kids.m3u
           
           # 2. Add or Update the timestamp comment at the top of the file
-          if grep -q "# Last Updated:" son.m3u; then
+          if grep -q "# Last Updated:" kids.m3u; then
             sed -i "s|# Last Updated:.*|# Last Updated: $TIMESTAMP|g" kids.m3u
           else
             # Prepend the timestamp if it doesn't exist
-            sed -i "1i # Last Updated: $TIMESTAMP" son.m3u
+            sed -i "1i # Last Updated: $TIMESTAMP" kids.m3u
           fi
 
       - name: Push Changes
