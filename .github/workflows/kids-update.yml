@@ -24,7 +24,7 @@ jobs:
       - name: Extract Fresh Token
         id: fetch
         env:
-          SOURCE_URL: ${{ secrets.Kids_BABA_TILU }}
+          SOURCE_URL: ${{ secrets.KIDS_BABA_TILU }}
         run: |
           # Fetch the source data
           SOURCE_DATA=$(curl -sL "$SOURCE_URL")
