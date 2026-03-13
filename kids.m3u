@@ -1,10 +1,11 @@
 
 #EXTM3U
+# bab-tiu
 
 #EXTINF:-1 tvg-id="123" group-title="Kids" tvg-logo="https://jiotv.catchup.cdn.jio.com/dare_images/images/Cartoon_Network_Hindi.png",Cartoon Network Hindi
 #KODIPROP:inputstream.adaptive.license_type=clearkey
 #KODIPROP:inputstream.adaptive.license_key=ea48cf7b24dd54dd98c369626b9ad105:ee5778d627dfae2c2affc02d76e8db6c
-#EXTHTTP:{"cookie":"__hdnea__=st=1773378032~exp=1773464432~acl=/*~hmac=25a85cc6a1d3c3c1029575706ae3853e705c66d9046760cf9a47796e8ebb2cbf"}
+#EXTHTTP:{"cookie":"__hdnea__=st=1773378032~exp=1773464432~acl=/*~hmac=25a85cc6a1d3c3c1029575706ajjjjjjjjjhhhhhhhhhhhhhhhhhhe3853e705c66d9046760cf9a47796e8ebb2cbf"}
 https://jiotvmblive.cdn.jio.com/bpk-tv/CNHindi_BTS/output/index.mpd
 
 #EXTINF:-1 tvg-id="124" group-title="Kids" tvg-logo="https://jiotv.catchup.cdn.jio.com/dare_images/images/Cartoon_Network_Tamil.png",Cartoon Network Tamil
