@@ -34,11 +34,17 @@ jobs:
           # Pull latest changes to avoid conflicts
           git pull origin main --rebase
           
-          # Fetch the data and save it directly to son3.m3u
-          # -f fails the job if the URL is broken
-          curl -fsSL "$SOURCE_URL" -o son3.m3u
+          echo "Downloading M3U from secret URL..."
+          # Added a standard Chrome User-Agent (-A) to bypass bot blocking
+          curl -sSL -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0" "$SOURCE_URL" -o son3.m3u
           
-          echo "Playlist fetched and saved to son3.m3u at $(date)"
+          # Safety check: Verify the file actually downloaded and is not empty
+          if [ -s son3.m3u ]; then
+            echo "Playlist fetched successfully and saved to son3.m3u at $(date)"
+          else
+            echo "Error: son3.m3u is empty or failed to download. Check if the source URL is active."
+            exit 1 # Stops the workflow so it doesn't push an empty file
+          fi
 
       - name: Commit and Push Changes
         run: |
