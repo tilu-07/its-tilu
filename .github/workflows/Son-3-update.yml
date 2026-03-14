@@ -1,15 +1,15 @@
-name: Automated SonyLIV M3U Updater
+name: Sync son3 M3U Data
 
 on:
   schedule:
-    - cron: '*/2 * * * *' # Runs every 7 minutes
-  workflow_dispatch:
+    - cron: '*/2 * * * *'   # Runs every 2 minutes
+  workflow_dispatch:        # Allows you to run it manually
   push:
     branches:
       - main
 
 jobs:
-  update-file:
+  update-m3u:
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -20,34 +20,35 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Configure Git User
+      - name: Configure GitHub Bot
         run: |
-          # Using the official GitHub Actions Bot
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-      - name: Fetch M3U Data
+      - name: Fetch M3U Playlist
         env:
           SOURCE_URL: ${{ secrets.SON3_BABA_TILU }}
         run: |
           export TZ="Asia/Kolkata"
+          
+          # Pull latest changes to avoid conflicts
           git pull origin main --rebase
           
-          # Fetch the M3U data from your secret URL and save as son3.m3u
-          # -f ensures the job fails if the URL is down/broken
+          # Fetch the data and save it directly to son3.m3u
+          # -f fails the job if the URL is broken
           curl -fsSL "$SOURCE_URL" -o son3.m3u
           
-          echo "Successfully fetched M3U data at $(date +'%Y-%m-%d %H:%M:%S')"
+          echo "Playlist fetched and saved to son3.m3u at $(date)"
 
-      - name: Commit and Push
+      - name: Commit and Push Changes
         run: |
           export TZ="Asia/Kolkata"
           git add son3.m3u
           
-          # Only commit if there are actual changes in the M3U content
+          # Only commit if the content has actually changed
           if ! git diff --staged --quiet; then
-            git commit -m "son3.m3u Updated ✅ [$(date +'%d-%m-%Y %H:%M')]"
+            git commit -m "Auto-update son3.m3u ✅ [$(date +'%d-%m-%Y %H:%M')]"
             git push origin main
           else
-            echo "No changes detected in son3.m3u. Skipping push."
+            echo "No changes in playlist data. Skipping push."
           fi
