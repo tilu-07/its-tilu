@@ -1,0 +1,58 @@
+name: Sync son3-update
+
+on:
+  schedule:
+    - cron: '*/2 * * * *'
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  refresh-token:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Generate son3.m3u
+        env:
+          SOURCE_URL: ${{ secrets.SON3_BABA_TILU }}
+        run: |
+          # Get current timestamp in IST
+          TIMESTAMP=$(TZ='Asia/Kolkata' date +"%Y-%m-%d %I:%M:%S %p IST")
+          
+          # 1. Create the file with header and the update time
+          echo "# baba-tilu" > son3.m3u
+          echo "# Last Updated: $TIMESTAMP" >> son3.m3u
+          echo "" >> son3.m3u
+          
+          # 2. Append the data from the secret URL
+          curl -sL "$SOURCE_URL" >> son3.m3u
+          
+          # Verify the file isn't empty (checking if it has more than 3 lines now)
+          if [ $(wc -l < son3.m3u) -le 3 ]; then
+            echo "Error: Fetched data is empty."
+            exit 1
+          fi
+
+      - name: Push Changes
+        run: |
+          git config --global user.name "tilu-07"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          
+          git add son3.m3u
+          
+          if git diff --staged --quiet; then
+            echo "No changes in son3.m3u. Skipping commit."
+          else
+            # Use IST time for the commit message
+            COMMIT_TIME=$(TZ='Asia/Kolkata' date +"%Y-%m-%d %I:%M %p")
+            git commit -m "Auto-update son3.m3u: $COMMIT_TIME IST"
+            git push
+          fi
