@@ -1,3 +1,4 @@
+# Last Updated: 2026-03-14 05:09:44 PM IST
 
 #EXTM3U
 # baba-tilu
@@ -7,7 +8,7 @@
 #KODIPROP:inputstream.adaptive.license_type=clearkey
 #KODIPROP:inputstream.adaptive.license_key=null:null
 #KODIPROP:inputstream.adaptive.manifest_type=mpd
-https://jiotvmblive.cdn.jio.com/bpk-tv/StarTell_BTS/output/index.mpd?__hdnea__=st=1773461784~exp=1773548184~acl=/*~hmac=857ff5fdf526b7d1e62948ba2d5278ff96dcd488adfe9e5aadad2623ehjhhhhh3a27b9e
+https://jiotvmblive.cdn.jio.com/bpk-tv/StarTell_BTS/output/index.mpd?__hdnea__=st=1773461784~exp=1773548184~acl=/*~hmac=857ff5fdf526b7d1e62948ba2d5278ff96dcd488adfe9e5aadad2623e3a27b9e
 
 #EXTINF:-1 tvg-id="1056" tvg-name="Star Sports Select 1 HD" tvg-logo="https://img.media.jio.com/tvpimages/96/65/302113_1749664252703_l_medium.jpg" group-title="Sports",Star Sports Select 1 HD
 #EXTVLCOPT:http-user-agent=baba-tilu
