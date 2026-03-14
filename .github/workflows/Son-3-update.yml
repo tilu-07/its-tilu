@@ -34,24 +34,16 @@ jobs:
           # Pull latest changes to avoid conflicts
           git pull origin main --rebase
           
-          # 1. Generate the IST Timestamp
-          TIMESTAMP=$(date +"%Y-%m-%d %I:%M:%S %p IST")
-          
-          # 2. Create the file and write the header lines
-          echo "# baba-tilu" > son3.m3u
-          echo "# Last Updated: $TIMESTAMP" >> son3.m3u
-          echo "" >> son3.m3u
-          
           echo "Downloading M3U from secret URL..."
-          # 3. Append the remote data to the file (after the header)
-          curl -sSL -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0" "$SOURCE_URL" >> son3.m3u
+          # Added a standard Chrome User-Agent (-A) to bypass bot blocking
+          curl -sSL -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0" "$SOURCE_URL" -o son3.m3u
           
-          # 4. Safety check: Ensure file has header + actual content (more than 3 lines)
-          if [ $(wc -l < son3.m3u) -gt 3 ]; then
-            echo "Playlist fetched successfully with header at $TIMESTAMP"
+          # Safety check: Verify the file actually downloaded and is not empty
+          if [ -s son3.m3u ]; then
+            echo "Playlist fetched successfully and saved to son3.m3u at $(date)"
           else
-            echo "Error: son3.m3u is empty or failed to download content."
-            exit 1
+            echo "Error: son3.m3u is empty or failed to download. Check if the source URL is active."
+            exit 1 # Stops the workflow so it doesn't push an empty file
           fi
 
       - name: Commit and Push Changes
@@ -59,9 +51,9 @@ jobs:
           export TZ="Asia/Kolkata"
           git add son3.m3u
           
-          # Only commit if the content (token or timestamp) has changed
+          # Only commit if the content has actually changed
           if ! git diff --staged --quiet; then
-            git commit -m "Auto-update son3.m3u ✅ [$(date +'%d-%m-%Y %I:%M %p') IST]"
+            git commit -m "Auto-update son3.m3u ✅ [$(date +'%d-%m-%Y %H:%M')]"
             git push origin main
           else
             echo "No changes in playlist data. Skipping push."
