@@ -2,29 +2,33 @@ name: Update Sony LiveTV Data
 
 on:
   schedule:
-    - cron: "0 */12 * * *"   # runs every 12 hours (UTC)
-  workflow_dispatch:        # allow manual trigger
+    - cron: "*/2 * * * *"   # Runs every 2 minutes
+  workflow_dispatch:        # Allows manual trigger
 
 jobs:
   update-data:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write       # Essential for pushing changes
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         
       - name: Fetch API data
         run: |
+          # Fetch and save as JSON formatted data
           curl -s "${{ secrets.SON3_BABA_TILU }}" | jq '.' > son3.m3u
        
       - name: Commit and push changes
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add .
+          git add son3.m3u
+          
           if ! git diff --staged --quiet; then
-            TZ=Asia/Kolkata
-            export TZ
-            git commit -m "Update Sony LiveTV data - $(date +"%d/%m/%Y, %I:%M %p IST")"
+            export TZ=Asia/Kolkata
+            COMMIT_TIME=$(date +"%d/%m/%Y, %I:%M %p IST")
+            git commit -m "Update Sony LiveTV data - $COMMIT_TIME"
             git push
           else
             echo "No changes to commit"
