@@ -1,0 +1,74 @@
+name: baba-tilu-s-all
+
+on:
+  schedule:
+    # NOTE: GitHub may delay 2-minute crons to every 5-10 mins to save resources
+    - cron: '*/2 * * * *'
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  refresh-token:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Extract Fresh Token
+        id: fetch
+        env:
+          SOURCE_URL: ${{ secrets.KIDS_BABA_TILU }}
+        run: |
+          # Fetch the source data
+          SOURCE_DATA=$(curl -sL "$SOURCE_URL")
+          
+          # Extract the cookie value
+          FRESH_TOKEN=$(echo "$SOURCE_DATA" | grep -o '"cookie":"[^"]*' | sed 's/"cookie":"//')
+          
+          if [ -z "$FRESH_TOKEN" ]; then
+            echo "Error: Could not extract token."
+            exit 1
+          fi
+          
+          echo "::add-mask::$FRESH_TOKEN"
+          echo "TOKEN=$FRESH_TOKEN" >> $GITHUB_ENV
+
+      - name: Update son
+        run: |
+          # Set Timezone to India and format: YYYY-MM-DD HH:MM:SS AM/PM IST
+          TIMESTAMP=$(TZ='Asia/Kolkata' date +"%Y-%m-%d %I:%M:%S %p IST")
+          
+          # 1. Update the token in the m3u file
+          sed -i "s|__hdnea__=[^\"'[:space:]&]*|${{ env.TOKEN }}|g" s-all.m3u
+          
+          # 2. Add or Update the timestamp comment at the top of the file
+          if grep -q "# Last Updated:" s-all.m3u; then
+            sed -i "s|# Last Updated:.*|# Last Updated: $TIMESTAMP|g" s-all.m3u
+          else
+            # Prepend the timestamp if it doesn't exist
+            sed -i "1i # Last Updated: $TIMESTAMP" s-all.m3u
+          fi
+
+      - name: Push Changes
+        run: |
+          git config --global user.name "tilu-07"
+          git config --global user.email "267656420+tilu-07@users.noreply.github.com"
+          
+          git add s-all.m3u
+          
+          # Check for changes in both token and timestamp
+          if git diff --staged --quiet; then
+            echo "No changes detected. Skipping commit."
+          else
+            # Use IST timestamp in the commit message as well
+            COMMIT_TIME=$(TZ='Asia/Kolkata' date +"%Y-%m-%d %I:%M %p")
+            git commit -m "Auto-update: $COMMIT_TIME IST"
+            git push
+          fi
