@@ -1,59 +1,31 @@
-name: Sync son3-update
+name: Update Sony LiveTV Data
 
 on:
   schedule:
-    - cron: '*/2 * * * *' # Runs every 2 minutes
-  push:
-    branches:
-      - main
-  workflow_dispatch: # Allows manual trigger
+    - cron: "0 */12 * * *"   # runs every 12 hours (UTC)
+  workflow_dispatch:        # allow manual trigger
 
 jobs:
-  refresh-token:
+  update-data:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      
     steps:
-      - name: Checkout Repository
+      - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Generate son3.m3u
-        env:
-          SOURCE_URL: ${{ secrets.SON3_BABA_TILU }}
+        
+      - name: Fetch API data
         run: |
-          # Set timezone and get timestamp
-          TIMESTAMP=$(TZ='Asia/Kolkata' date +"%Y-%m-%d %I:%M:%S %p IST")
-          
-          # 1. Create the file with the initial header
-          echo "#EXTM3U" > son3.m3u
-          echo "# Updated: $TIMESTAMP" >> son3.m3u
-          echo "" >> son3.m3u
-          
-          # 2. Fetch data from the secret URL and append it
-          # -f fails on HTTP errors, -L follows redirects, -s is silent
-          curl -fsL "$SOURCE_URL" >> son3.m3u
-          
-          # 3. Validation: Ensure the file actually contains streaming data (look for #EXTINF)
-          if ! grep -q "#EXTINF" son3.m3u; then
-            echo "Error: Fetched data does not contain valid M3U content or is empty."
-            exit 1
-          fi
-
-      - name: Push Changes
+          curl -s "${{ secrets.SON3_BABA_TILU }}" | jq '.' > sony_livetv.json
+       
+      - name: Commit and push changes
         run: |
-          git config --global user.name "tilu-07"
-          git config --global user.email "267656420+tilu-07@users.noreply.github.com"
-          
-          git add son3.m3u
-          
-          # Only commit if there are actual content changes
-          if git diff --staged --quiet; then
-            echo "No changes in son3.m3u content. Skipping commit."
-          else
-            COMMIT_TIME=$(TZ='Asia/Kolkata' date +"%Y-%m-%d %I:%M %p")
-            git commit -m "Auto-update son3.m3u: $COMMIT_TIME IST"
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add .
+          if ! git diff --staged --quiet; then
+            TZ=Asia/Kolkata
+            export TZ
+            git commit -m "Update Sony LiveTV data - $(date +"%d/%m/%Y, %I:%M %p IST")"
             git push
+          else
+            echo "No changes to commit"
           fi
