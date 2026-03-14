@@ -27,7 +27,7 @@ jobs:
 
       - name: Fetch M3U Playlist
         env:
-          SOURCE_URL: ${{ secrets.SON3_BABA_TILU }}
+          SOURCE_URL: ${{ secrets.BABA_TILU }}
         run: |
           export TZ="Asia/Kolkata"
           
