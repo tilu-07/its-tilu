@@ -1,35 +1,53 @@
-name: Update Sony LiveTV Data
+name: Automated SonyLIV M3U Updater
 
 on:
   schedule:
-    - cron: "*/2 * * * *"   # Runs every 2 minutes
-  workflow_dispatch:        # Allows manual trigger
+    - cron: '*/2 * * * *' # Runs every 7 minutes
+  workflow_dispatch:
+  push:
+    branches:
+      - main
 
 jobs:
-  update-data:
+  update-file:
     runs-on: ubuntu-latest
     permissions:
-      contents: write       # Essential for pushing changes
+      contents: write
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        
-      - name: Fetch API data
+        with:
+          fetch-depth: 0
+
+      - name: Configure Git User
         run: |
-          # Fetch and save as JSON formatted data
-          curl -s "${{ secrets.SON3_BABA_TILU }}" | jq '.' > son3.m3u
-       
-      - name: Commit and push changes
+          # Using the official GitHub Actions Bot
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Fetch M3U Data
+        env:
+          SOURCE_URL: ${{ secrets.SON3_BABA_TILU }}
         run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
+          export TZ="Asia/Kolkata"
+          git pull origin main --rebase
+          
+          # Fetch the M3U data from your secret URL and save as son3.m3u
+          # -f ensures the job fails if the URL is down/broken
+          curl -fsSL "$SOURCE_URL" -o son3.m3u
+          
+          echo "Successfully fetched M3U data at $(date +'%Y-%m-%d %H:%M:%S')"
+
+      - name: Commit and Push
+        run: |
+          export TZ="Asia/Kolkata"
           git add son3.m3u
           
+          # Only commit if there are actual changes in the M3U content
           if ! git diff --staged --quiet; then
-            export TZ=Asia/Kolkata
-            COMMIT_TIME=$(date +"%d/%m/%Y, %I:%M %p IST")
-            git commit -m "Update Sony LiveTV data - $COMMIT_TIME"
-            git push
+            git commit -m "son3.m3u Updated ✅ [$(date +'%d-%m-%Y %H:%M')]"
+            git push origin main
           else
-            echo "No changes to commit"
+            echo "No changes detected in son3.m3u. Skipping push."
           fi
